@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+
+    <style>
+        .characters {
+            margin-right: 10px; /* 이미지 사이의 간격을 설정합니다. */
+            display: inline-block;
+            flex-wrap: wrap;
+        }
+        .characters p {
+        margin: 0; /* 기본적인 문단 요소의 여백 제거 */
+        }
+        .characters span {
+            font-weight: bold; /* 텍스트 강조 설정 */
+            margin-right: 5px; /* 각 속성 이름과 값 사이의 간격 설정 */
+        }   
+    div:hover {
+        cursor: pointer; /* 호버 상태일 때 커서를 포인터로 변경 */
+        background-color: lightgray; /* 호버 상태일 때 배경색 변경 */
+    }
+    </style>
+</head>
+<body>
+    <h1>검색 결과</h1>
+    {% for character in data['rows'] %}
+        <div class="characters" id="clickable-div" onclick="redirectToNextPage(`{{character['characterId']}}&serverId={{character['serverId']}}`)">        
+            <img src="https://img-api.neople.co.kr/df/servers/{{ character['serverId'] }}/characters/{{ character['characterId'] }}?zoom=1" alt="CharacterImage">
+            <p><span>서버:</span> {{servers[character['serverId']]}}</p>
+            <p><span>닉네임:</span> {{character['characterName']}}</p>
+            <p><span>레벨:</span> {{ character['level'] }}</p>
+            <p><span>직업:</span> {{ character['jobGrowName'] }}</p>
+            <p><span>명성:</span> {{ character['fame'] }}</p>
+        </div>
+    {% endfor %}
+    <script>
+        function redirectToNextPage(characterInfo) {
+            // characterId를 이용하여 다음 페이지의 URL을 생성합니다.
+            var url = "/info?characterId=" + characterInfo;
+            console.log(url);
+            console.log('redirecting to next page');
+            // 생성한 URL로 페이지를 이동합니다.
+            window.location.href = url;
+        }
+    </script>
+    
+
+  
+</body>
+</html>

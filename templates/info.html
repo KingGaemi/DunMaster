@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+
+    
+    <!-- Match for equipments -->
+    {% set WEAPON = 0 %}
+    {% set TITLE = 1 %}
+    {% set JACKET = 2 %}
+    {% set SHOULDER = 3 %}
+    {% set PANTS = 4 %}
+    {% set SHOES = 5 %}
+    {% set WAIST = 6 %}
+    {% set AMULET = 7 %}
+    {% set WRIST = 8 %}
+    {% set RING = 9 %}
+    {% set SUPPORT = 10 %}
+    {% set MAGIC_STONE = 11 %}
+    {% set EARRING = 12 %}
+
+
+</head>
+<body>
+    <h1>Info Of {{info['characterName']}}</h1>
+    <p>레벨: {{info['level']}}</p>
+    <p>직업: {{info['jobGrowName']}}</p>
+    <p>길드: {{info['guildName']}}</p>
+
+    {% for equipment in info['equipment'] %}
+        <div class="equipments" id="">
+            <p>{{equipment['itemType']}}: {{equipment['itemName']}} {{equipment['reinforce']}}+</p>
+            <img src="https://img-api.neople.co.kr/df/items/{{equipment['itemId']}}" alt="Item Image">
+        </div>
+    {% endfor %}
+
+
+    <script>
+        // 마우스를 올렸을 때 툴팁을 보이게 하는 함수
+        function showTooltip(itemId, index) {
+            var tooltip = document.getElementById('tooltip_' + index);
+            tooltip.style.display = 'block'; // 툴팁 표시
+
+            // 여기서 itemId를 이용하여 추가 정보를 가져와서 tooltip에 표시하는 코드를 작성합니다.
+            // 예를 들어, AJAX 요청을 보내거나 미리 준비된 정보를 가져와서 표시합니다.
+            // 이 예시에서는 추가 정보가 없다고 가정합니다.
+            tooltip.innerHTML = 'Additional information'; // 추가 정보 표시 (여기에 실제 정보를 넣어야 합니다)
+        }
+
+        // 마우스를 떼었을 때 툴팁을 숨기는 함수
+        function hideTooltip(index) {
+            var tooltip = document.getElementById('tooltip_' + index);
+            tooltip.style.display = 'none'; // 툴팁 숨김
+        }
+    </script>
+    
+</body>
+</html>

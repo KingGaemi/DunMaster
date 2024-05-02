@@ -1,0 +1,36 @@
+    <!DOCTYPE html>
+    <html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <!DOCTYPE html>
+        <html lang="en">
+        <head>
+            <meta charset="UTF-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            <title>Document</title>
+        </head>
+        
+        <body>
+            <h1>Hello Main</h1>
+            <p>My name is.. </p>
+            <form method="GET" action="/searchCharacter">
+                <input type="text" placeholder="Yea" id="CharacterName" name="characterName">
+                <input type="submit">
+            </form>
+
+            
+
+            <h2>To Server</h2>
+
+            <button onclick="redirectToServer()">Go to Server Page</button>
+            
+            <script>
+                function redirectToServer() {
+                    window.location.href = "/server";
+                }
+            </script>
+        </body>
+        </html>
+    
+    </body>
+    </html>
