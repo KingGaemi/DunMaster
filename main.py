@@ -3,7 +3,10 @@ from fastapi.responses import HTMLResponse
 from fastapi.templating import Jinja2Templates
 from typing import List, Dict
 import requests
+from data_processing import fetch_equipment_info
+
 app = FastAPI()
+
 templates = Jinja2Templates(directory="templates")
 
 # dictionary to stare server information
@@ -22,22 +25,6 @@ server_dict =   {"cain": "카인",
         "anton": "안톤",
         "bakal": "바칼"
     }
-
-equipment_dict = {
-    'WEAPON': 0,
-    'TITLE': 1,
-    'JACKET': 2,
-    'SHOULDER': 3,
-    'PANTS': 4,
-    'SHOES': 5,
-    'WAIST': 6,
-    'AMULET': 7,
-    'WRIST': 8,
-    'RING': 9,
-    'SUPPORT': 10,
-    'MAGIC_STONE': 11,
-    'EARRING': 12
-}
 
 
 
@@ -65,12 +52,12 @@ def search_character(request: Request, characterName: str = Query(...)):
 
 @app.get("/info",  response_class=HTMLResponse)
 def info(request: Request, characterId: str, serverId: str):
-    url = f"https://api.neople.co.kr/df/servers/{serverId}/characters/{characterId}/equip/equipment?apikey={API_KEY}"   
-    response = requests.get(url)
-    data = response.json() 
+
+    data = fetch_equipment_info(characterId, serverId, API_KEY)
+
 
     if data:
-        return templates.TemplateResponse("info.html", { "request": request, "info": data, "equipment_dict": equipment_dict})
+        return templates.TemplateResponse("info.html", { "request": request, "info": data})
     else:
         return "No data found"
 

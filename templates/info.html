@@ -23,38 +23,123 @@
     {% set EARRING = 12 %}
 
 
+    <style>
+        /* 아이콘에 대한 추가 정보를 표시할 스타일 */
+        .equipments {
+            position: relative;
+        }
+        .equipmentImg {
+            position: relative; /* 부모 요소로부터의 상대적 위치 */
+            display: inline-block; /* 인라인 요소로 표시되도록 설정 */
+        }
+        .tooltip {
+            position: absolute;
+            background-color: rgba(0, 0, 0, 1);
+            border: 1px solid #000000;
+            padding: 10px;
+            border-radius: 5px;
+            display: none; /* 기본적으로 숨김 */
+            color: rgba(255, 255, 255, 1);
+            z-index: 100; /* 툴팁을 다른 요소보다 앞에 표시 */
+            
+        }
+        .equipmentImg:hover + .tooltip {
+            display: block;
+        }
+    </style>
 </head>
-<body>
+<body >
     <h1>Info Of {{info['characterName']}}</h1>
     <p>레벨: {{info['level']}}</p>
     <p>직업: {{info['jobGrowName']}}</p>
     <p>길드: {{info['guildName']}}</p>
 
     {% for equipment in info['equipment'] %}
-        <div class="equipments" id="">
+        <div class="equipments" id="item_{{ loop.index }}">
             <p>{{equipment['itemType']}}: {{equipment['itemName']}} {{equipment['reinforce']}}+</p>
-            <img src="https://img-api.neople.co.kr/df/items/{{equipment['itemId']}}" alt="Item Image">
+            <div class="equipmentImg">
+                <img src="https://img-api.neople.co.kr/df/items/{{equipment['itemId']}}" alt="Item Image">
+            </div>
+            <div class="tooltip" id ="tooltip_{{ loop.index }}">
+                <!-- {% for tooltip in tooltips %}
+                    <span>{{loop.index}}옵션</span>
+                    <span>{{tooltip}}</span>
+                {% endfor  %} -->
+
+
+            </div>
         </div>
     {% endfor %}
 
 
     <script>
-        // 마우스를 올렸을 때 툴팁을 보이게 하는 함수
-        function showTooltip(itemId, index) {
-            var tooltip = document.getElementById('tooltip_' + index);
-            tooltip.style.display = 'block'; // 툴팁 표시
 
-            // 여기서 itemId를 이용하여 추가 정보를 가져와서 tooltip에 표시하는 코드를 작성합니다.
-            // 예를 들어, AJAX 요청을 보내거나 미리 준비된 정보를 가져와서 표시합니다.
-            // 이 예시에서는 추가 정보가 없다고 가정합니다.
-            tooltip.innerHTML = 'Additional information'; // 추가 정보 표시 (여기에 실제 정보를 넣어야 합니다)
+        function getLastProperty(obj) {
+            var keys = Object.keys(obj);
+            var lastKey = keys[keys.length - 1];
+            return obj[lastKey];
+        }
+        function decodeHtmlEntities(html) {
+            var txt = document.createElement("textarea");
+            txt.innerHTML = html;
+            return txt.value;
         }
 
-        // 마우스를 떼었을 때 툴팁을 숨기는 함수
-        function hideTooltip(index) {
-            var tooltip = document.getElementById('tooltip_' + index);
-            tooltip.style.display = 'none'; // 툴팁 숨김
+        function prosseceJson(json) {
+
+            
+            json = json.slice(1, -1);
+            json = json.replace(/&#39;/g, '"');
+            json = json.replace(/&#34;/g, '"');
+            json = json.replace(/None/g, 'null');
+            json = json.replace(/True/g, 'true');
+            json = json.replace(/False/g, 'false');
+            console.log(json);
+            return JSON.parse(json);
         }
+
+
+        function generateTooltip() {
+
+
+            let equipments = [];
+            
+            for (let index = 0; index < 13; index++) {
+                equipments.append(prosseceJson(JSON.stringify('{{info["equipment"].0}}')));
+                console.log("Appending");
+            }
+            console.log(equipments[0]);
+
+
+            for (let index = 0; index < equipments.length; index++) {
+                var targetTooltip = document.getElementById('tooltip_' + (index+1));
+                if (targetTooltip == null) {
+                    console.log('targetTooltip: null');
+                    return;
+                }
+
+                if( 'customOption' in equipments[index] ) {
+                    var options = equipments[index]['customOption']['options'];
+                    for (let i = 0; i < options.length; i++) {
+                        var option = options[i]['explain'];
+                        targetTooltip.innerHTML += '<div><span>' + (i+1) + '옵션<br></span><span>' + option + '<br></span></div>';
+                    }
+                } else if( 'fixedOption' in equipments[index] ) {
+                    var option = equipments[index]['fixedOption']['explain'];
+                    targetTooltip.innerHTML += '<span>고정 옵션</span><span>' + option + '</span>';
+
+                } else {
+                    targetTooltip.innerHTML += '<span>Defult</span><span>Defult</span>';
+                }
+        
+                
+            }
+            
+        }
+        window.onload = function() {
+          generateTooltip(); // 페이지가 로드될 때 myFunction 호출
+        };
+
     </script>
     
 </body>

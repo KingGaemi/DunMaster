@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+
+    
+    <!-- Match for equipments -->
+    {% set WEAPON = 0 %}
+    {% set TITLE = 1 %}
+    {% set JACKET = 2 %}
+    {% set SHOULDER = 3 %}
+    {% set PANTS = 4 %}
+    {% set SHOES = 5 %}
+    {% set WAIST = 6 %}
+    {% set AMULET = 7 %}
+    {% set WRIST = 8 %}
+    {% set RING = 9 %}
+    {% set SUPPORT = 10 %}
+    {% set MAGIC_STONE = 11 %}
+    {% set EARRING = 12 %}
+
+
+    <style>
+        /* 아이콘에 대한 추가 정보를 표시할 스타일 */
+        .equipments {
+            position: relative;
+        }
+        .equipmentImg {
+            position: relative; /* 부모 요소로부터의 상대적 위치 */
+            display: inline-block; /* 인라인 요소로 표시되도록 설정 */
+        }
+        .tooltip {
+            position: absolute;
+            background-color: rgba(0, 0, 0, 1);
+            border: 1px solid #000000;
+            padding: 10px;
+            border-radius: 5px;
+            display: none; /* 기본적으로 숨김 */
+            color: rgba(255, 255, 255, 1);
+            z-index: 100; /* 툴팁을 다른 요소보다 앞에 표시 */
+            
+        }
+        .equipmentImg:hover + .tooltip {
+            display: block;
+        }
+    </style>
+</head>
+<body>
+    <h1>Info Of {{info['characterName']}}</h1>
+    <p>레벨: {{info['level']}}</p>
+    <p>직업: {{info['jobGrowName']}}</p>
+    <p>길드: {{info['guildName']}}</p>
+
+    {% for equipment in info['equipment'] %}
+        <div class="equipments" id="item_{{ loop.index }}">
+            <p>{{equipment['itemType']}}: {{equipment['itemName']}} {{equipment['reinforce']}}+</p>
+            <div class="equipmentImg">
+                <img src="https://img-api.neople.co.kr/df/items/{{equipment['itemId']}}" alt="Item Image">
+            </div>
+            {% if 'customOption' in equipment %}
+                <div class="tooltip" id="tooltip_{{ loop.index }}">
+                    {% for option in equipment['customOption']['options'] %}
+                    <div>
+                        <span>{{loop.index}}옵션</span>
+                        <span>{{option['explain']}}</span>
+                    </div>
+                    {% endfor %}
+                </div>
+            {% elif 'fixedOption' in equipment %}
+                <div class="tooltip" id="tooltip_{{ loop.index }}">         
+                    <div>
+                        <span>고정 옵션</span>
+                        <span>{{equipment['fixedOption']['explain']}}</span>
+                    </div>
+                </div>
+            {% else %}
+                <div class="tooltip" id="tooltip_{{ loop.index }}">
+                    <div>
+                        <span>Defult</span>
+                        <span>Defult</span>
+                    </div>
+                </div>
+            {% endif %}
+        </div>
+    {% endfor %}
+
+
+    <script>
+
+        class EquipmentItem {
+            constructor(type = -1, name = '', customed = -1, amplificationName = '', reinforce = -1, enchant = [], refine = -1, fusioned = -1, fusionId = '', options = []) {
+                this.type = type; // 장비 타입  // 깡템 = 0 , 고정픽 = 1, 커스텀 = 2
+                this.name = name; // 장비 이름
+                this.customed = customed; // 커스텀 옵션 여부
+                this.amplificationName = amplificationName; // 증폭 종류
+                this.reinforce = reinforce; // 강화 수치
+                this.enchant = enchant; // 마부
+                this.refine = refine; // 제련 수치
+                this.fusioned = fusioned; // 융합 여부
+                this.fusionId = fusionId; // 융합 아이템 ID
+                this.options = options; // 아이템 옵션
+            }
+            
+            getType(){         // 깡템 = 0, 고정픽 = 1, 커스텀 = 2
+               if (this.customed == 1) {
+                   return 2;
+               } else if (this.type == TITLE) {
+                   return 0;
+               } else {
+                   return 1;
+               }
+            }
+        }
+
+        function getLastProperty(obj) {
+            var keys = Object.keys(obj);
+            var lastKey = keys[keys.length - 1];
+            return obj[lastKey];
+        }
+        function decodeHtmlEntities(html) {
+            var txt = document.createElement("textarea");
+            txt.innerHTML = html;
+            return txt.value;
+        }
+
+        function makeProcessed() {
+            let items = [];
+            var infoString = "{{info['equipment']}}";  // info가 너무 커서 다 못가져왔었음
+            var decodedJsonString = decodeHtmlEntities(infoString);
+            // console.log(decodedJsonString);
+            var info = decodedJsonString;
+            console.log(info);
+            console.log(info[0], "info[0]");
+            for(let i = 0 ; i < 13 ; i++) {
+                console.log("try to make");
+                let item = new EquipmentItem();
+                console.log(info[i]['itemName']);
+                item.name = `${info[i]['itemName']}`;
+                item.customed = `${info[i]['customOption']}`? 1 : 0;
+                item.amplificationName = `${info[i]['amplificationName']}`;
+                item.reinforce = `${info[i]['reinforce']}`;
+                item.enchant = `${info[i]['enchant']}`;
+                item.refine = `${info[i]['refine']}`;
+                item.fusioned = `${info[i]['fusioned']}`;
+                items.push(item);
+                console.log(item);
+                console.log("pushed");
+            }
+            
+            return items;
+        }
+        document.addEventListener('DOMContentLoaded', function() {
+        // Fetch the info object (e.g., from an API call or from another source)
+        console.log("Load Info");
+        // Process the info object
+        // const jsonString = JSON.stringify('{{info}}');
+        let processedItems = makeProcessed();
+
+        // Now you can do something with the processed items
+        console.log(processedItems);
+
+
+
+    });
+    </script>
+    
+</body>
+</html>
