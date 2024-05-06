@@ -46,30 +46,73 @@
         .equipmentImg:hover + .tooltip {
             display: block;
         }
+        .content {
+            margin-top: 20px;
+        }
     </style>
 </head>
 <body >
-    <h1>Info Of {{info['characterName']}}</h1>
-    <p>레벨: {{info['level']}}</p>
-    <p>직업: {{info['jobGrowName']}}</p>
-    <p>길드: {{info['guildName']}}</p>
+    <h1>{{equipmentsJSON['characterName']}}  ({{servers[equipmentsJSON['serverId']]}})</h1>
+    <p>레벨: {{equipmentsJSON['level']}}</p>
+    <p>직업: {{equipmentsJSON['jobGrowName']}}</p>
+    <p>길드: {{equipmentsJSON['guildName']}}</p>
 
-    {% for equipment in info['equipment'] %}
-        <div class="equipments" id="item_{{ loop.index }}">
-            <p>{{equipment['itemType']}}: {{equipment['itemName']}} {{equipment['reinforce']}}+</p>
-            <div class="equipmentImg">
-                <img src="https://img-api.neople.co.kr/df/items/{{equipment['itemId']}}" alt="Item Image">
+
+    <input type="radio" id="equipmentsRadio" name="infoRadio" value="equipments" checked>
+    <label for="equipmentsRadio">장비</label><br>
+    <input type="radio" id="avatarRadio" name="infoRadio" value="avatar">
+    <label for="avatarRadio">아바타</label><br>
+    <input type="radio" id="creatureRadio" name="infoRadio" value="creature">
+    <label for="creatureRadio">능력치</label><br>
+    <input type="radio" id="traitRadio" name="infoRadio" value="trait">
+    <label for="traitRadio">장비 특성</label><br>
+   
+    <div id="content1" class="content">
+        {% for equipment in equipmentsJSON['equipment'] %}
+            <div class="equipments" id="item_{{ loop.index }}">
+                <p>{{equipment['itemType']}}: {{equipment['itemName']}} {{equipment['reequipmentsJSONrce']}}+</p>
+                <div class="equipmentImg">
+                    <img src="https://img-api.neople.co.kr/df/items/{{equipment['itemId']}}" alt="Item Image">
+                </div>
+                <div class="tooltip" id ="tooltip_{{ loop.index }}">
+
+                </div>
             </div>
-            <div class="tooltip" id ="tooltip_{{ loop.index }}">
-                <!-- {% for tooltip in tooltips %}
-                    <span>{{loop.index}}옵션</span>
-                    <span>{{tooltip}}</span>
-                {% endfor  %} -->
+        {% endfor %}
+    </div>
 
-
+    <div id="content2" class="content" style="display:none;">
+        {% for avatar in avatarJSON['avatar'] %}
+            <div>
+                {{avatar["slotName"]}}
+                <img src="https://img-api.neople.co.kr/df/items/{{avatar['itemId']}}" alt="Item Image">
+                {{avatar["itemName"]}}
+                {{avatar["optionAbility"]}}
             </div>
-        </div>
-    {% endfor %}
+        {% endfor %}
+    </div>
+
+    <div id="content3" class="content" style="display:none;">
+        능력치
+        {% for sataus in statusJSON['status'] %}
+            <div>
+                {{sataus["name"]}}
+                {{sataus["value"]}}
+            </div>
+        {% endfor %}
+
+    </div>
+    
+    <div id="content4" class="content" style="display:none;">
+        장비 특성
+        {% for traitOption in traitJSON['equipmentTrait']['options'] %}
+            <div>
+                {{traitOption["name"]}}
+                {{traitOption["explain"]}}
+            </div>
+        {% endfor %}
+
+    </div>
 
 
     <script>
@@ -94,50 +137,85 @@
             json = json.replace(/None/g, 'null');
             json = json.replace(/True/g, 'true');
             json = json.replace(/False/g, 'false');
-            console.log(json);
+            // console.log(json);
             return JSON.parse(json);
         }
 
 
-        function generateTooltip() {
+        function generateEquipmentsTooltip() {
+            console.log("try");   
+            console.log('{{equipmentsJSON["equipment"][0]["itemName"]}}');
+            '{% for equipment in equipmentsJSON["equipment"] %}'
+                console.log('{{equipment["itemName"]}}');
 
+            '{% endfor %}'
+       
 
-            let equipments = [];
-            
-            for (let index = 0; index < 13; index++) {
-                equipments.append(prosseceJson(JSON.stringify('{{info["equipment"].0}}')));
-                console.log("Appending");
-            }
-            console.log(equipments[0]);
+            let optionString = ''; // need to declare here
+            '{% for equipment in equipmentsJSON["equipment"] %}'
+                console.log("Tag tooltip"+ '{{loop.index}}');
+                
 
-
-            for (let index = 0; index < equipments.length; index++) {
-                var targetTooltip = document.getElementById('tooltip_' + (index+1));
+                // None
+                var targetTooltip = document.getElementById('tooltip_' + '{{loop.index}}');
                 if (targetTooltip == null) {
                     console.log('targetTooltip: null');
                     return;
                 }
+                 
 
-                if( 'customOption' in equipments[index] ) {
-                    var options = equipments[index]['customOption']['options'];
-                    for (let i = 0; i < options.length; i++) {
-                        var option = options[i]['explain'];
-                        targetTooltip.innerHTML += '<div><span>' + (i+1) + '옵션<br></span><span>' + option + '<br></span></div>';
-                    }
-                } else if( 'fixedOption' in equipments[index] ) {
-                    var option = equipments[index]['fixedOption']['explain'];
-                    targetTooltip.innerHTML += '<span>고정 옵션</span><span>' + option + '</span>';
+                // Custom Option
+                '{% if "customOption" in equipment  %}'
+                    '{% for option in equipment["customOption"]["options"] %}'
+                        optionString = '{{option["explain"] | safe | replace("\n", "<br>")}}';
+                        optionString = optionString.replace(/&lt;br&gt;/g, '<br>');
+                        targetTooltip.innerHTML += '<div class="tooltipOption" style ="margin-bottom: 15px;"><span>' + ('{{loop.index}}') + '옵션<br></span><span>' + optionString + '<br></span></div>';
+                    '{% endfor %}'
 
-                } else {
+
+                // Fixed Option 
+                '{% elif  "fixedOption" in equipment  %}'
+                    optionString = '{{equipment["fixedOption"]["explain"] | safe | replace("\n", "<br>")}}';
+                    optionString = optionString.replace(/&lt;br&gt;/g, '<br>');
+                    targetTooltip.innerHTML += '<span>고정 옵션</span><br><span>' + optionString+ '</span>';
+                
+
+                // Asrahan Option
+                '{% elif "asrahanOption" in equipment  %}'
+                    '{% for option in equipment["asrahanOption"]["options"] %}'
+                        optionString = '{{option["explain"] | safe | replace("\n", "<br>")}}';
+                        optionString = optionString.replace(/&lt;br&gt;/g, '<br>');
+                        targetTooltip.innerHTML += '<span>' +  '{{option["name"]}}' + '</span><br><span>' + optionString+ '</span>';
+                    '{% endfor %}'
+                // Default
+                '{% else %}' 
                     targetTooltip.innerHTML += '<span>Defult</span><span>Defult</span>';
-                }
+                '{% endif %}'
         
                 
-            }
+            '{% endfor %}'
             
         }
+        // 라디오 버튼 요소들을 가져옵니다.
+        var infoContents = document.querySelectorAll('input[name="infoRadio"]');
+        // 내용 요소들을 가져옵니다.
+        var contents = document.querySelectorAll('.content');
+
+        // 라디오 버튼에 이벤트 리스너를 추가합니다.
+        infoContents.forEach(function(option, index) {
+            option.addEventListener('change', function() {
+                // 모든 내용을 숨깁니다.
+                contents.forEach(function(content) {
+                    content.style.display = 'none';
+                });
+                // 선택된 라디오 버튼에 해당하는 내용을 보이도록 만듭니다.
+                document.getElementById('content' + (index + 1)).style.display = 'block';
+            });
+        });
+
         window.onload = function() {
-          generateTooltip(); // 페이지가 로드될 때 myFunction 호출
+          generateEquipmentsTooltip();
+
         };
 
     </script>

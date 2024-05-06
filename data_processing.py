@@ -30,35 +30,78 @@ class EquipmentItem:
         self.options = options # 아이템 옵션
 
 
-def fetch_equipment_info(characterId: str, serverId: str, API_KEY: str):
+async def fetch_equipment_info(characterId: str, serverId: str, API_KEY: str):
     url = f"https://api.neople.co.kr/df/servers/{serverId}/characters/{characterId}/equip/equipment?apikey={API_KEY}"
     response = requests.get(url)
     data = response.json()
 
 
-    items = []
+    # items = []
 
-    for equipment in data['equipment']:
-        item = EquipmentItem()
-        item.type = equipment['slotId']
-        item.name = equipment['itemName']
-        item.customed = 'customOption' in equipment
-        item.amplificationName = equipment['amplificationName']
-        item.reinforce = equipment['reinforce']
-        item.enchant = equipment['enchant']['status']
-        item.refine = equipment['refine']
-        item.fusioned = 'fusionOption' in equipment
+    # for equipment in data['equipment']:
+    #     item = EquipmentItem()
+    #     item.type = equipment['slotId']
+    #     item.name = equipment['itemName']
+    #     item.customed = 'customOption' in equipment
+    #     item.amplificationName = equipment['amplificationName']
+    #     item.reinforce = equipment['reinforce']
+    #     item.enchant = equipment['enchant']['status']
+    #     item.refine = equipment['refine']
+    #     item.fusioned = 'fusionOption' in equipment
 
-        if item.fusioned:
-            item.fusionId = equipment['upgradeInfo']['itemId']
+    #     if item.fusioned:
+    #         item.fusionId = equipment['upgradeInfo']['itemId']
         
-        if item.customed:
-            item.options = equipment['customOption']['options']
+    #     if item.customed:
+    #         item.options = equipment['customOption']['options']
 
         
-        items.append(item)
+    #     items.append(item)
 
     return data
+
+
+async def fetch_avatar_info(characterId: str, serverId: str, API_KEY: str):
+    url = f"https://api.neople.co.kr/df/servers/{serverId}/characters/{characterId}/equip/avatar?apikey={API_KEY}"
+    response = requests.get(url)
+    data = response.json()
+
+    return data
+
+
+async def fetch_status_info(characterId: str, serverId: str, API_KEY: str):
+    url = f"https://api.neople.co.kr/df/servers/{serverId}/characters/{characterId}/status?apikey={API_KEY}"
+    response = requests.get(url)
+    data = response.json()
+
+    return data
+async def fetch_creature_info(characterId: str, serverId: str, API_KEY: str):
+    url = f"https://api.neople.co.kr/df/servers/{serverId}/characters/{characterId}/equip/creature?apikey={API_KEY}"
+    response = requests.get(url)
+    data = response.json()
+
+    return data
+async def fetch_flag_info(characterId: str, serverId: str, API_KEY: str):
+    url = f"https://api.neople.co.kr/df/servers/{serverId}/characters/{characterId}/equip/flag?apikey={API_KEY}"
+    response = requests.get(url)
+    data = response.json()
+
+    return data
+
+async def fetch_talisman_info(characterId: str, serverId: str, API_KEY: str):
+    url = f"https://api.neople.co.kr/df/servers/{serverId}/characters/{characterId}/equip/talisman?apikey={API_KEY}"
+    response = requests.get(url)
+    data = response.json()
+
+    return data
+
+async def fetch_equipment_trait_info(characterId: str, serverId: str, API_KEY: str):
+    url = f"https://api.neople.co.kr/df/servers/{serverId}/characters/{characterId}/equip/equipment-trait?apikey={API_KEY}"
+    response = requests.get(url)
+    data = response.json()
+
+    return data 
+
 
 def printOptions(options):
     for i, option in enumerate(options):
